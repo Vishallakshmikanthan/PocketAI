@@ -1,0 +1,9 @@
+# Local model files
+models/*.gguf
+
+# Runtime logs
+data/logs/
+
+# Temporary files
+*.tmp
+*.log
