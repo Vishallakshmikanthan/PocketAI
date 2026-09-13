@@ -14,8 +14,19 @@ fi
 
 source "$CONFIG"
 
+MODEL_CONFIG="$POCKETAI_ROOT/config/models/$MODEL_ID.conf"
+
+if [[ ! -f "$MODEL_CONFIG" ]]; then
+    echo "ERROR: model configuration not found:"
+    echo "$MODEL_CONFIG"
+    exit 1
+fi
+
+source "$MODEL_CONFIG"
+
 RUNTIME="$POCKETAI_ROOT/runtime"
 MODEL="$POCKETAI_ROOT/models/$MODEL_FILE"
+CHECKSUM="$POCKETAI_ROOT/config/models/$MODEL_ID.sha256"
 
 SERVER="$RUNTIME/bin/llama-server"
 LIB_DIR="$RUNTIME/lib"
@@ -25,7 +36,8 @@ echo "            PocketAI"
 echo "================================"
 echo
 echo "Root:    $POCKETAI_ROOT"
-echo "Model:   $MODEL"
+echo "Model:   $MODEL_NAME"
+echo "File:    $MODEL_FILE"
 echo "Address: $HOST:$PORT"
 echo "Context: $CONTEXT"
 echo
@@ -42,10 +54,30 @@ if [[ ! -f "$MODEL" ]]; then
     exit 1
 fi
 
+if [[ ! -f "$CHECKSUM" ]]; then
+    echo "ERROR: model checksum file not found:"
+    echo "$CHECKSUM"
+    exit 1
+fi
+
 if ! [[ "$PORT" =~ ^[0-9]+$ ]] || (( PORT < 1 || PORT > 65535 )); then
     echo "ERROR: invalid port: $PORT"
     exit 1
 fi
+
+echo "Verifying model integrity..."
+
+if ! (
+    cd "$POCKETAI_ROOT" &&
+    sha256sum -c "$CHECKSUM" --status
+); then
+    echo "ERROR: model integrity check failed."
+    echo "The model may be corrupted or modified."
+    exit 1
+fi
+
+echo "Model integrity: OK"
+echo
 
 if ss -ltn 2>/dev/null | grep -q ":$PORT "; then
     echo "ERROR: port $PORT is already in use."
