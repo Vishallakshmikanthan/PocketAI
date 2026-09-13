@@ -29,8 +29,6 @@ echo "Model:   $MODEL"
 echo "Address: $HOST:$PORT"
 echo "Context: $CONTEXT"
 echo
-echo "Starting local AI server..."
-echo
 
 if [[ ! -x "$SERVER" ]]; then
     echo "ERROR: llama-server not found or not executable:"
@@ -44,7 +42,21 @@ if [[ ! -f "$MODEL" ]]; then
     exit 1
 fi
 
+if ! [[ "$PORT" =~ ^[0-9]+$ ]] || (( PORT < 1 || PORT > 65535 )); then
+    echo "ERROR: invalid port: $PORT"
+    exit 1
+fi
+
+if ss -ltn 2>/dev/null | grep -q ":$PORT "; then
+    echo "ERROR: port $PORT is already in use."
+    echo "Another service may already be running on this port."
+    exit 1
+fi
+
 export LD_LIBRARY_PATH="$LIB_DIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+echo "Starting local AI server..."
+echo
 
 exec "$SERVER" \
     -m "$MODEL" \
