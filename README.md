@@ -1,5 +1,8 @@
 # PocketAI
 
+<img width="1536" height="1024" alt="ChatGPT Image Sep 14, 2026, 11_07_20 AM" src="https://github.com/user-attachments/assets/358c999b-aaa2-4d52-839e-9485f1d7d9dd" />
+
+
 **PocketAI is a portable, offline-first local AI environment designed to run from removable storage.**
 
 It combines a local `llama.cpp` inference runtime, a Qwen3 4B GGUF model, a lightweight browser interface, integrity verification, and a USB-friendly project layout.
